@@ -37,7 +37,7 @@ def predict(model):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', default="model/model.h5", help="模型保存位置", type=str)
+    parser.add_argument('--model', default="model/cat-and-dog.h5", help="模型保存位置", type=str)
     parser.add_argument('--img', default="cats_and_dogs_dataset/train/cats/cat.0.jpg", help="待预测图片",
                         type=str)
     parser.add_argument('--videocap', default=False, help="是否需要调用摄像头检测")
