@@ -5,17 +5,7 @@ import numpy as np
 import tensorflow as tf
 from PIL import Image
 from tensorflow.keras.preprocessing.image import load_img, img_to_array
-from tensorflow.keras.applications.vgg19 import preprocess_input, VGG19
-
-
-def model():
-    base_model = VGG19(include_top=False, weights="imagenet", input_shape=(224, 224, 3))
-    x = base_model.outputs[0]
-    x = tf.keras.layers.GlobalAveragePooling2D()(x)
-    x = tf.keras.layers.Dense(1024, activation="relu")(x)
-    output = tf.keras.layers.Dense(2, activation=tf.keras.activations.softmax)(x)
-    model = tf.keras.models.Model(inputs=base_model.inputs, outputs=output)
-    return model
+from tensorflow.keras.applications.vgg19 import preprocess_input
 
 
 def predict(model):
@@ -47,7 +37,7 @@ def predict(model):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weight', default="weight/weight/best.h5", help="模型保存位置", type=str)
+    parser.add_argument('--model', default="model/model.h5", help="模型保存位置", type=str)
     parser.add_argument('--img', default="cats_and_dogs_dataset/train/cats/cat.0.jpg", help="待预测图片",
                         type=str)
     parser.add_argument('--videocap', default=False, help="是否需要调用摄像头检测")
@@ -56,4 +46,6 @@ if __name__ == '__main__':
     class_dict = {0: "cat",
                   1: "dog"}
 
-    predict(model=model())
+    model = tf.keras.models.load_model(opt.model)
+
+    predict(model=model)

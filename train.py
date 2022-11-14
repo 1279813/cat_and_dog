@@ -47,24 +47,18 @@ def model_fit(model, train_gen, val_gen):
     if not os.path.exists(weight_save_path):
         os.makedirs(weight_save_path)
 
-    save_model = tf.keras.callbacks.ModelCheckpoint(weight_save_path + "best.h5",
-                                                    monitor="val_accuracy",
-                                                    save_weights_only=True,
-                                                    save_best_only=True,
-                                                    mode="auto",
-                                                    period=1)
+    ckpt_save_path = opt.ckpt_save_path
+    if os.path.exists(ckpt_save_path + ".index"):
+        print("=" * 40 + "load the ckpt" + "=" * 30)
+        model.load_weights(ckpt_save_path)
 
-    if opt.ckpt == True:
-        ckpt_save_path = opt.ckpt_save_path
-        if os.path.exists(ckpt_save_path + ".index"):
-            print("=" * 40 + "load the ckpt" + "=" * 30)
-            model.load_weights(ckpt_save_path)
+    ckpt = tf.keras.callbacks.ModelCheckpoint(filepath=ckpt_save_path,
+                                              save_weights_only=True,
+                                              save_best_only=True)
 
-        ckpt = tf.keras.callbacks.ModelCheckpoint(filepath=ckpt_save_path,
-                                                  save_weights_only=True,
-                                                  save_best_only=True)
+    history = model.fit_generator(train_gen, epochs=opt.epochs, validation_data=val_gen, callbacks=[ckpt])
 
-    history = model.fit_generator(train_gen, epochs=opt.epochs, validation_data=val_gen, callbacks=[ckpt, save_model])
+    model.save(weight_save_path + "cat-and-dog.h5")
 
     return history
 
@@ -94,10 +88,9 @@ def plt_parameter(history):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--epochs', type=int, default=50)
-    parser.add_argument('--ckpt', default=True, help="是否需要断点续训")
-    parser.add_argument('--ckpt_save_path', default="weight/ckpt/", help="断点续训文件保存位置", type=str)
-    parser.add_argument('--model_save_path', default="weight/weight/", help="模型保存位置", type=str)
+    parser.add_argument('--epochs', type=int, default=20)
+    parser.add_argument('--ckpt_save_path', default="ckpt/", help="断点续训文件保存位置", type=str)
+    parser.add_argument('--model_save_path', default="model/", help="模型保存位置", type=str)
     parser.add_argument('--train_dir', default="cats_and_dogs_dataset/train", help="训练集位置", type=str)
     parser.add_argument('--val_dir', default="cats_and_dogs_dataset/val", help="验证集位置", type=str)
     opt = parser.parse_args()
